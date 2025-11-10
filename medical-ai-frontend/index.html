@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical AI Learning Platform - UConn Allied Health</title>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Map the new app.js success class to your existing green callout look */
+    .upload-status.success {
+      background: var(--color-bg-3);
+      color: var(--color-success);
+      border: 1px solid var(--color-success);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <h1>Medical AI Learning Platform</h1>
+        <p class="subtitle">Allied Health 3000 - Intermediate AI Tech Track</p>
+      </div>
+      <div class="progress-indicator">
+        <span class="progress-text">Section <span id="currentTab">0</span> of 6</span>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-navigation">
+      <button class="tab-btn active" data-tab="0" id="tabBtn0">
+        <span class="tab-number">0</span>
+        <span class="tab-label">Dataset Setup</span>
+      </button>
+      <button class="tab-btn" data-tab="1" id="tabBtn1" disabled>
+        <span class="tab-number">1</span>
+        <span class="tab-label">Introduction</span>
+      </button>
+      <button class="tab-btn" data-tab="2" id="tabBtn2" disabled>
+        <span class="tab-number">2</span>
+        <span class="tab-label">Data Quality</span>
+      </button>
+      <button class="tab-btn" data-tab="3" id="tabBtn3" disabled>
+        <span class="tab-number">3</span>
+        <span class="tab-label">Train Model</span>
+      </button>
+      <button class="tab-btn" data-tab="4" id="tabBtn4" disabled>
+        <span class="tab-number">4</span>
+        <span class="tab-label">Evaluate</span>
+      </button>
+      <button class="tab-btn" data-tab="5" id="tabBtn5" disabled>
+        <span class="tab-number">5</span>
+        <span class="tab-label">Test &amp; Explore</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Tab 0: Dataset Setup -->
+      <div class="tab-content active" id="tab0">
+        <h2>Dataset Setup</h2>
+        <div class="intro-card">
+          <p class="intro-text">To use real medical images, we need to connect to Kaggle where the datasets are stored. Kaggle is a platform that hosts thousands of datasets for machine learning research and education.</p>
+        </div>
+
+        <div class="section-card">
+          <h3>Step 1: Kaggle Authentication (Optional)</h3>
+          <p class="section-description">If you have a Kaggle account, you can upload your kaggle.json credentials to access real datasets. This allows the application to download actual medical images for training.</p>
+
+          <div class="upload-section">
+            <!-- Single upload area (duplicate removed) -->
+            <div class="file-upload-area" id="fileUploadArea">
+              <div class="upload-icon">+</div>
+              <p class="upload-text">Click to upload kaggle.json</p>
+              <p class="upload-subtext">Or drag and drop your credentials file here</p>
+              <input type="file" id="kaggleFileInput" accept=".json" style="display: none;" />
+            </div>
+            <!-- Status area added for app.js -->
+            <div id="uploadStatus" class="upload-status" style="display: none;"></div>
+          </div>
+
+          <div class="callout callout--info">
+            <strong>Privacy Notice:</strong> Your credentials are kept private and only used to download public datasets. They are stored locally in your browser and never sent to any server.
+          </div>
+
+          <div class="kaggle-help">
+            <button class="btn btn--secondary" id="showKaggleHelp">How to get kaggle.json?</button>
+            <div class="help-content" id="kaggleHelpContent" style="display: none;">
+              <ol>
+                <li>Go to <a href="https://www.kaggle.com" target="_blank" rel="noreferrer">kaggle.com</a> and sign in</li>
+                <li>Click on your profile picture in the top right</li>
+                <li>Select "Settings" from the dropdown</li>
+                <li>Scroll to "API" section and click "Create New Token"</li>
+                <li>This downloads kaggle.json - upload it here</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Step 2: Select Your Dataset</h3>
+          <p class="section-description">Choose which medical imaging dataset you want to work with. Each dataset contains real medical images used in clinical research.</p>
+
+          <div class="dataset-preview-cards">
+            <div class="dataset-preview-card" id="chestXrayCard">
+              <div class="dataset-header">
+                <h4>Chest X-Ray (Pneumonia Detection)</h4>
+                <span class="dataset-badge">5,863 images</span>
+              </div>
+              <p class="dataset-description">Classify chest X-rays as Normal or Pneumonia. This dataset is widely used for training AI models to detect pneumonia from radiographs.</p>
+              <div class="dataset-stats-grid">
+                <div class="stat-box">
+                  <span class="stat-number">5,216</span>
+                  <span class="stat-label">Training</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-number">624</span>
+                  <span class="stat-label">Validation</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-number">390</span>
+                  <span class="stat-label">Test</span>
+                </div>
+              </div>
+              <div class="dataset-preview-images" id="chestXrayPreview">
+                <div class="preview-placeholder">Connect to Kaggle to see sample images</div>
+              </div>
+              <div class="dataset-meta">
+                <span class="clinical-note">Pneumonia detection is critical for rapid triage and treatment</span>
+                <span class="benchmark">Benchmark Accuracy: 95%</span>
+              </div>
+              <button class="btn btn--primary btn--full-width" id="selectChestXray">Use This Dataset</button>
+            </div>
+
+            <div class="dataset-preview-card" id="breastUltrasoundCard">
+              <div class="dataset-header">
+                <h4>Breast Ultrasound (Benign vs Malignant)</h4>
+                <span class="dataset-badge">780 images</span>
+              </div>
+              <p class="dataset-description">Classify breast ultrasounds as Normal, Benign, or Malignant. Essential for early tumor classification and treatment planning.</p>
+              <div class="dataset-stats-grid">
+                <div class="stat-box">
+                  <span class="stat-number">546</span>
+                  <span class="stat-label">Training</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-number">78</span>
+                  <span class="stat-label">Validation</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-number">156</span>
+                  <span class="stat-label">Test</span>
+                </div>
+              </div>
+              <div class="dataset-preview-images" id="breastUltrasoundPreview">
+                <div class="preview-placeholder">Connect to Kaggle to see sample images</div>
+              </div>
+              <div class="dataset-meta">
+                <span class="clinical-note">Early tumor classification is essential for treatment planning</span>
+                <span class="benchmark">Benchmark Accuracy: 92%</span>
+              </div>
+              <button class="btn btn--primary btn--full-width" id="selectBreastUltrasound">Use This Dataset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section" id="datasetSelectedSection" style="display: none;">
+          <div class="success-message">
+            <span class="success-icon">✓</span> Dataset Ready to Load
+          </div>
+          <button class="btn btn--primary btn--large" id="proceedToIntro">Proceed to Introduction</button>
+        </div>
+      </div>
+
+      <!-- Tab 1: Introduction & Dataset -->
+      <div class="tab-content" id="tab1">
+        <h2>Introduction &amp; Dataset Selection</h2>
+        <div class="intro-card">
+          <p class="intro-text">Welcome! In this activity, you'll train an AI model to detect medical conditions from real medical images. Machine learning models learn patterns from examples, just like medical students learn from case studies.</p>
+          <p class="intro-text">You'll explore how data quality, training parameters, and model architecture affect AI performance in healthcare settings using actual datasets from clinical research.</p>
+        </div>
+
+        <div class="section-card">
+          <h3>Selected Dataset Overview</h3>
+          <div id="selectedDatasetInfo" class="selected-dataset-info"></div>
+
+          <button class="btn btn--secondary" id="previewBtn">Preview Sample Images</button>
+
+          <div class="sample-preview" id="samplePreview" style="display: none;">
+            <h4>Sample Images from Dataset</h4>
+            <div class="image-grid" id="imageGrid"></div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button class="btn btn--primary btn--large" id="loadDatasetBtn">Load Dataset</button>
+          <div class="success-message" id="datasetLoadedMsg" style="display: none;">
+            <span class="success-icon">✓</span> Dataset loaded successfully! You can now proceed to Data Quality.
+          </div>
+        </div>
+
+        <div class="reflection-section">
+          <button class="reflection-toggle">Reflection Questions</button>
+          <div class="reflection-content">
+            <p><strong>Think about:</strong></p>
+            <ul>
+              <li>Why might having balanced classes (equal benign and malignant cases) be important?</li>
+              <li>What challenges might arise from using only X-ray images vs. other diagnostic tools?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Data Quality & Augmentation -->
+      <div class="tab-content" id="tab2">
+        <h2>Data Quality &amp; Augmentation</h2>
+        <div class="info-card">
+          <p>The quality and quantity of training data affects how well your AI learns. Let's explore how different data settings impact your model.</p>
+        </div>
+
+        <div class="section-card">
+          <h3>Training Data Settings</h3>
+
+          <div class="control-group">
+            <label class="control-label">
+              <span>Training Data Amount</span>
+              <span class="tooltip-icon" title="More training data generally leads to better model performance">i</span>
+            </label>
+            <input type="range" id="dataAmountSlider" min="25" max="100" step="25" value="100" class="slider" />
+            <div class="slider-labels">
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+            <div class="value-display">Using: <strong id="dataAmountValue">100%</strong> of training data</div>
+          </div>
+
+          <div class="control-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="augmentationCheck" checked />
+              <span>Apply Data Augmentation</span>
+              <span class="tooltip-icon" title="Creates variations like flips, rotations, and brightness changes to increase training examples">i</span>
+            </label>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">
+              <span>Image Quality</span>
+              <span class="tooltip-icon" title="Affects noise level and image clarity">i</span>
+            </label>
+            <input type="range" id="qualitySlider" min="1" max="3" step="1" value="3" class="slider" />
+            <div class="slider-labels">
+              <span>Low</span>
+              <span>Medium</span>
+              <span>High</span>
+            </div>
+            <div class="value-display">Quality: <strong id="qualityValue">High</strong></div>
+          </div>
+
+          <div class="stat-display">
+            <div class="stat-item">
+              <span class="stat-label">Effective Training Examples:</span>
+              <span class="stat-value" id="effectiveExamples">546</span>
+            </div>
+          </div>
+
+          <button class="btn btn--secondary" id="previewAugmentBtn">Preview Augmented Samples</button>
+
+          <div class="augmentation-preview" id="augmentationPreview" style="display: none;">
+            <h4>Data Augmentation Examples</h4>
+            <div class="augmentation-grid" id="augmentationGrid"></div>
+          </div>
+        </div>
+
+        <div class="callout callout--info">
+          <strong>Did you know?</strong> More diverse training data helps the model generalize better to new, unseen images!
+        </div>
+
+        <div class="reflection-section">
+          <button class="reflection-toggle">Reflection Questions</button>
+          <div class="reflection-content">
+            <p><strong>Think about:</strong></p>
+            <ul>
+              <li>Why might data augmentation help the model perform better in real-world scenarios?</li>
+              <li>How could image quality issues in clinical practice affect AI performance?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Train Your Model -->
+      <div class="tab-content" id="tab3">
+        <h2>Train Your Model</h2>
+        <div class="info-card">
+          <p>Now we'll train the AI model. These settings control how the model learns patterns from your training data.</p>
+        </div>
+
+        <div class="section-card">
+          <h3>Model Configuration</h3>
+
+          <div class="control-group">
+            <label class="control-label">
+              <span>Model Architecture</span>
+              <span class="tooltip-icon" title="More layers can learn complex patterns but take longer to train">i</span>
+            </label>
+            <select id="architectureSelect" class="form-control">
+              <option value="simple">Simple CNN - 2 layers (fast, good for beginners)</option>
+              <option value="medium" selected>Medium CNN - 4 layers (balanced)</option>
+              <option value="deep">Deep CNN - 6 layers (slow, more powerful)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">
+              <span>Training Duration</span>
+              <span class="tooltip-icon" title="Epochs are complete passes through the training data">i</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="epochs" value="5" />
+                <span>Quick (5 epochs)</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="epochs" value="10" checked />
+                <span>Medium (10 epochs)</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="epochs" value="20" />
+                <span>Thorough (20 epochs)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">
+              <span>Learning Rate</span>
+              <span class="tooltip-icon" title="Controls how quickly the model adjusts its learning">i</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="learningRate" value="0.0001" />
+                <span>Slow (0.0001) - Gradual learning</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="learningRate" value="0.001" checked />
+                <span>Medium (0.001) - Balanced (recommended)</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="learningRate" value="0.01" />
+                <span>Fast (0.01) - Quick but may be unstable</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button class="btn btn--primary btn--large" id="startTrainingBtn">Start Training</button>
+        </div>
+
+        <div class="training-progress" id="trainingProgress" style="display: none;">
+          <h3>Training in Progress...</h3>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="training-stats">
+            <p id="trainingStatus">Initializing...</p>
+            <p id="timeRemaining">Estimated time: calculating...</p>
+          </div>
+          <div class="metrics-display">
+            <div class="metric-item">
+              <span class="metric-label">Training Accuracy:</span>
+              <span class="metric-value" id="trainAccuracy">--</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Validation Accuracy:</span>
+              <span class="metric-value" id="valAccuracy">--</span>
+            </div>
+          </div>
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="trainingChart"></canvas>
+          </div>
+        </div>
+
+        <div class="training-complete" id="trainingComplete" style="display: none;">
+          <div class="success-message">
+            <span class="success-icon">✓</span> Training Complete!
+          </div>
+          <div class="final-metrics">
+            <div class="metric-card">
+              <h4>Final Training Accuracy</h4>
+              <p class="large-metric" id="finalTrainAcc">--</p>
+            </div>
+            <div class="metric-card">
+              <h4>Final Validation Accuracy</h4>
+              <p class="large-metric" id="finalValAcc">--</p>
+            </div>
+          </div>
+          <div id="overfitWarning" style="display: none;" class="callout callout--warning">
+            <strong>Potential Overfitting Detected!</strong> Training accuracy is much higher than validation accuracy. The model may have memorized training examples rather than learned general patterns.
+          </div>
+          <div id="underfitWarning" style="display: none;" class="callout callout--warning">
+            <strong>Low Accuracy Detected!</strong> The model may need more training time or a more complex architecture.
+          </div>
+        </div>
+
+        <div class="reflection-section">
+          <button class="reflection-toggle">Reflection Questions</button>
+          <div class="reflection-content">
+            <p><strong>Think about:</strong></p>
+            <ul>
+              <li>What trade-offs exist between training time and model complexity?</li>
+              <li>Why might validation accuracy differ from training accuracy?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Evaluate Performance -->
+      <div class="tab-content" id="tab4">
+        <h2>Evaluate Performance</h2>
+        <div class="info-card">
+          <p>Let's test your model on images it has never seen before. This shows how well it generalizes to new data.</p>
+        </div>
+
+        <div class="action-section">
+          <button class="btn btn--primary btn--large" id="evaluateBtn">Run Full Evaluation</button>
+        </div>
+
+        <div class="evaluation-results" id="evaluationResults" style="display: none;">
+          <div class="metrics-grid">
+            <div class="metric-card highlight">
+              <h4>Overall Accuracy <span class="tooltip-icon" title="Percentage of correct predictions overall">i</span></h4>
+              <p class="large-metric" id="overallAccuracy">--</p>
+            </div>
+            <!-- Updated to match app.js ids -->
+            <div class="metric-card">
+              <h4>Precision <span class="tooltip-icon" title="How often positive predictions are correct">i</span></h4>
+              <p class="large-metric" id="precision">--</p>
+            </div>
+            <div class="metric-card">
+              <h4>Recall <span class="tooltip-icon" title="Ability to find positive cases">i</span></h4>
+              <p class="large-metric" id="recall">--</p>
+            </div>
+            <div class="metric-card">
+              <h4>Specificity <span class="tooltip-icon" title="Ability to correctly identify negative cases">i</span></h4>
+              <p class="large-metric" id="specificity">--</p>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h3>Confusion Matrix <span class="tooltip-icon" title="Shows breakdown of correct vs incorrect predictions for each class">i</span></h3>
+            <div class="confusion-matrix" id="confusionMatrix"></div>
+          </div>
+
+          <div class="section-card">
+            <h3>Performance Comparison</h3>
+            <div class="comparison-display">
+              <div class="comparison-item">
+                <span class="comparison-label">Expert Radiologists:</span>
+                <span class="comparison-value benchmark" id="expertBenchmark">92%</span>
+              </div>
+              <div class="comparison-item">
+                <span class="comparison-label">Your AI Model:</span>
+                <span class="comparison-value" id="yourModelAcc">--</span>
+              </div>
+            </div>
+            <div id="performanceMessage" class="callout"></div>
+          </div>
+
+          <div class="chart-container" style="height: 300px;">
+            <canvas id="rocCurve"></canvas>
+          </div>
+
+          <button class="btn btn--secondary" id="downloadReportBtn">Download Results Report</button>
+        </div>
+
+        <div class="reflection-section">
+          <button class="reflection-toggle">Reflection Questions</button>
+          <div class="reflection-content">
+            <p><strong>Think about:</strong></p>
+            <ul>
+              <li>Why is sensitivity especially important when screening for cancer?</li>
+              <li>What would be the consequences of high false positives vs. high false negatives?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Test & Explore -->
+      <div class="tab-content" id="tab5">
+        <h2>Test &amp; Explore</h2>
+        <div class="info-card">
+          <p>Now test your model on individual images and see what it's focusing on. Experiment with image modifications to understand model robustness.</p>
+        </div>
+
+        <div class="section-card">
+          <h3>Select Test Image</h3>
+          <div class="image-selector-group">
+            <select id="testImageSelect" class="form-control">
+              <option value="">Choose a test image...</option>
+            </select>
+            <button class="btn btn--secondary" id="randomImageBtn">Random Image</button>
+          </div>
+        </div>
+
+        <div class="test-display" id="testDisplay" style="display: none;">
+          <div class="image-display-section">
+            <div class="test-image" id="testImage"></div>
+            <button class="btn btn--primary" id="predictBtn">Predict Diagnosis</button>
+          </div>
+
+          <div class="prediction-results" id="predictionResults" style="display: none;">
+            <h3>Prediction Results</h3>
+            <div class="prediction-display">
+              <div class="prediction-label">
+                <span>Model Prediction:</span>
+                <strong id="predictionLabel">--</strong>
+              </div>
+              <div class="confidence-display">
+                <span>Confidence:</span>
+                <strong id="confidenceValue">--</strong>
+              </div>
+              <div class="confidence-bar-container">
+                <div class="confidence-bar" id="confidenceBar"></div>
+              </div>
+            </div>
+
+            <button class="btn btn--secondary" id="showExplanationBtn">Show Explanation Heatmap</button>
+
+            <div class="heatmap-display" id="heatmapDisplay" style="display: none;">
+              <h4>Model Focus Areas</h4>
+              <p class="heatmap-description">Highlighted areas show where the model focused its attention when making the prediction.</p>
+              <div class="heatmap-image" id="heatmapImage"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card" id="perturbationSection" style="display: none;">
+          <h3>Test Model Robustness</h3>
+          <p class="section-description">Adjust image properties to see how they affect the model's prediction.</p>
+
+          <!-- These ids match app.js so changes update the model state -->
+          <div class="control-group">
+            <label class="control-label">Add Noise</label>
+            <input type="range" id="noiseSlider" min="0" max="100" value="0" class="slider" />
+            <div class="value-display">Noise: <strong id="noiseValue">0%</strong></div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Adjust Brightness</label>
+            <input type="range" id="brightnessSlider" min="50" max="150" value="100" class="slider" />
+            <div class="value-display">Brightness: <strong id="brightnessValue">100%</strong></div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Apply Blur</label>
+            <input type="range" id="blurSlider" min="0" max="10" value="0" class="slider" />
+            <div class="value-display">Blur: <strong id="blurValue">0</strong></div>
+          </div>
+
+          <button class="btn btn--primary" id="repredictBtn">Re-predict with Changes</button>
+
+          <div class="prediction-comparison" id="predictionComparison" style="display: none;">
+            <h4>Prediction Comparison</h4>
+            <div class="comparison-grid">
+              <div class="comparison-box">
+                <h5>Original</h5>
+                <p id="originalPrediction">--</p>
+              </div>
+              <div class="comparison-arrow">→</div>
+              <div class="comparison-box">
+                <h5>After Changes</h5>
+                <p id="modifiedPrediction">--</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout--info">
+          <strong>Notice:</strong> Image quality affects model confidence! This is why maintaining high-quality medical images is crucial in clinical practice.
+        </div>
+
+        <div class="reflection-section">
+          <button class="reflection-toggle">Reflection Questions</button>
+          <div class="reflection-content">
+            <p><strong>Think about:</strong></p>
+            <ul>
+              <li>How might AI explanations help radiologists trust and verify predictions?</li>
+              <li>What are the limitations of relying solely on AI for diagnosis?</li>
+              <li>How does this activity change your perspective on AI in healthcare?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- App -->
+  <script src="/app.js"></script>
+</body>
+</html>
